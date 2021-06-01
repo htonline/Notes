@@ -1,0 +1,70 @@
+登录、注册功能实现步骤：
+一、将登录注册相关页面中的路径改为绝对路径
+    1.创建一个动态的Web工程bookstore02
+    2.将bookstore01中的所有的目录和index.html复制到bookstore02的web目录下
+    3.将首页和pages/user目录下的所有的页面通过base标签改为绝对路径
+二、创建数据库、表和对应的类
+    1.在MySQL数据库中创建一个bookstore的数据库
+    2.在bookstore数据库中创建一张users表
+        -id int类型，主键，自增
+        -username varchar类型，唯一，不能为null
+        -password varchar类型，不能为null
+        -email varchar类型
+    3.创建User类（id属性、username属性、password属性、email属性）
+三、获取数据库连接
+    1.导jar包
+        -在动态工程的WEB-INF目录下创建一个lib目录
+        -将druid的jar包、MySQL的驱动包、单元测试的jar包、dbutils的jar包复制导lib目录中
+    2.在bookstore02的src目录下创建com.atguigu.bookstore.utils包
+    3.将JDBC中创建的JDBCUtils工具类复制导utils包下
+    4.将JDBC中创建的druid.properties文件复制导src目录下
+    5.创建com.atguigu.bookstore.test包并在该包下创建测试类ConnectionTest测试获取连接
+四、创建UserDao接口（需要放在com.atguigu.bookstore.dao包下）
+    1.在UserDao接口中创建验证用户名和密码的方法
+        -User checkUsernameAndPassword(String username , Stirng password);//入参是两个String类型的参数
+        -User checkUsernameAndPassword(User user);//入参是User对象
+    2.在UserDao接口中创建验证用户名是否存在的方法
+        -boolean checkUsername(String username);
+    3.在UserDao接口中创建插入用户信息的方法
+        -void saveUser(String username , Stirng password , String email)
+五、创建UserDaoImpl实现类
+    1.将JDBC中创建BaseDao复制导dao包下
+    2.让UserDaoImpl继承BaseDao并实现UserDao接口
+    3.在UserDaoImpl实现的UserDao接口的方法中写sql语句，调用BaseDao中的方法实现功能
+    4.在com.atguigu.bookstore.test包下创建UserDaoTest测试类，测试UserDaoImpl中的三个方法是否有问题
+六、创建UserService接口（需要放在com.atguigu.bookstore.service包下）
+    1.在UserService接口中创建登录的方法
+        -User login(User user)
+    2.在UserService接口中创建注册的方法
+        -boolean regist(User user)
+    3.在UserService接口中创建保存用户的方法
+        -void saveUser(User user)
+七、创建UserServiceImpl
+    1.让UserServiceImpl实现UserService接口
+    2.在UserServcieImpl类中设置一个UserService类型的属性
+        -private UserDao userDao = new UserDaoImpl();
+    2.通过调用UserDao中的三个方法实现UserService接口中的三个方法
+八、创建LoginSevlet
+    1.将登录页面的form表单的action属性设置为LoginServlet的urlPatterns中配置的路径
+    2.form的method属性设置post，发送一个post请求
+    3.在LoginServlet中设置一个UserService类型的属性
+        -private UserServcie userService = new UserServiceImpl();
+    4.在LoginServlet的doPost方法中获取用户名、密码
+    5.将获取用户名、密码封装导一个User对象中
+    6.调用UserService中登录的方法
+    7.根据返回的User对象判断登录成功还是登录失败
+        -如果User不等于null，重定向到登录成功页面
+        -否则转发到登录页面
+九、创建RegistServlet
+    1.将注册页面的form表单的action属性设置为RegistServlet的urlPatterns中配置的路径
+    2.form的method属性设置post，发送一个post请求
+    3.在RegistServlet中设置一个UserService类型的属性
+        -private UserServcie userService = new UserServiceImpl();
+    4.在LoginServlet的doPost方法中获取用户名、密码、邮箱
+    5.将获取用户名、密码、邮箱封装导一个User对象中
+    6.调用UserService中注册的方法
+    7.根据返回的布尔类型的值判断注册成功还是注册失败
+         -如果返回true，证明用户名已存在，转发到注册页面
+         -否则证明用户名可用
+            -调用UserService中保存用户信息的方法将用户信息插入到数据库中
+            -重定向到注册成功页面
